@@ -1,0 +1,11 @@
+# Virtualenv
+
+pip install wheel
+
+
+# Change version in setup.py
+
+# Build and upload
+
+rm -rf build dist django_couch.egg-info
+python setup.py sdist bdist_wheel upload
