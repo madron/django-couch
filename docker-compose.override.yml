@@ -1,0 +1,10 @@
+version: '3'
+
+
+services:
+  couch:
+    ports:
+      - "5984:5984"
+      - "5986:5986"
+    tmpfs:
+      - /opt/couchdb/data

@@ -1,0 +1,12 @@
+version: '3'
+
+
+services:
+  couch:
+    image: klaemo/couchdb:2.0.0
+    network_mode: default
+    environment:
+      - COUCHDB_HTTP_BIND_ADDRESS=0.0.0.0
+      - COUCHDB_HTTP_PORT=5984
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=admin

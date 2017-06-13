@@ -1,0 +1,7 @@
+### Coverage
+coverage run manage.py test && coverage report --skip-covered
+coverage html
+
+
+# Couchdb setup example
+curl -X POST -H "Content-Type: application/json" http://admin:admin@localhost:5984/_cluster_setup -d '{"action": "finish_cluster"}'
