@@ -177,6 +177,8 @@ class Document(six.with_metaclass(DocumentBase)):
                 raise
             self._id = result['id']
             self._rev = result['rev']
+            return 'saved'
+        return 'unchanged'
 
     def delete(self):
         db = self._meta.get_database()
@@ -189,4 +191,4 @@ class DesignDocument(Document):
     views = JsonField()
 
     def save(self):
-        super(DesignDocument, self).save(only_if_changed=True)
+        return super(DesignDocument, self).save(only_if_changed=True)

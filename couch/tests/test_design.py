@@ -5,7 +5,7 @@ from ..documents import DesignDocument
 
 class DesignDocumentTest(CouchTestCase):
     def setUp(self):
-        self.db = Server(alias='default').get_or_create_database('db')
+        self.db, created = Server(alias='default').get_or_create_database('db')
 
     def test_save_design(self):
         # Schema

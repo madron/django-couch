@@ -1,5 +1,6 @@
 import os
 import pkgutil
+import sys
 from copy import deepcopy
 from importlib import import_module
 from django.apps import apps
@@ -8,11 +9,13 @@ from . import documents
 from . import Server
 
 
-def server_setup():
+def server_setup(verbosity=0, stdout=sys.stdout):
     from django.conf import settings
     for alias in settings.COUCH_SERVERS.keys():
         server = Server(alias=alias)
         server.single_node_setup()
+        if verbosity > 0:
+            stdout.write("Server '{}' setup.".format(alias))
 
 
 def collect_schema():
@@ -88,12 +91,14 @@ def merge_schema(schema):
     return merged
 
 
-def apply_schema_migration(schema):
+def apply_schema_migration(schema, verbosity=0, stdout=sys.stdout):
     if schema:
         for alias, server_info in schema.items():
             server = Server(alias=alias)
             for db_name, db_schema in server_info.items():
-                db = server.get_or_create_database(db_name)
+                db, created = server.get_or_create_database(db_name)
+                if created and verbosity > 0:
+                    stdout.write("Server '{}' - Database '{}' created.".format(alias, db_name))
                 # Remove no more needed design docs
                 needed = list(db_schema.get('designs', dict()).keys())
                 needed += list(db_schema.get('index', dict()).keys())
@@ -102,12 +107,16 @@ def apply_schema_migration(schema):
                     if not design_name in needed:
                         url = '{}?rev={}'.format(row['id'], row['value']['rev'])
                         db.delete(url)
+                        if verbosity > 0:
+                            stdout.write("Server '{}' - Database '{}' - Design document '{}' removed.".format(alias, db_name, design_name))
                 # Create design docs
                 for design_name, design_schema in db_schema.get('designs', dict()).items():
                     _id = '_design/{}'.format(design_name)
                     doc = documents.DesignDocument(_id=_id, **design_schema)
                     doc._meta.database = db
-                    doc.save()
+                    result = doc.save()
+                    if result == 'saved' and verbosity > 0:
+                        stdout.write("Server '{}' - Database '{}' - Design document '{}' added.".format(alias, db_name, design_name))
                 # Remove no more needed indexes
                 needed = [(None, '_all_docs')]
                 for design_name, index_schema in db_schema.get('index', dict()).items():
@@ -116,13 +125,18 @@ def apply_schema_migration(schema):
                 for key in db.list_indexes().keys():
                     if not key in needed:
                         db.delete_index(*key)
+                        if verbosity > 0:
+                            design_name, index_name = key
+                            stdout.write("Server '{}' - Database '{}' - Index '{}/{}' removed.".format(alias, db_name, design_name, index_name))
                 # Create indexes
                 for design_name, index_schema in db_schema.get('index', dict()).items():
                     for index_name, index in index_schema.items():
-                        db.create_index(ddoc=design_name, name=index_name, index=index)
+                        data = db.create_index(ddoc=design_name, name=index_name, index=index)
+                        if data['result'] == 'created' and verbosity > 0:
+                            stdout.write("Server '{}' - Database '{}' - Index '{}/{}' added.".format(alias, db_name, design_name, index_name))
 
 
-def migrate():
+def migrate(verbosity=0, stdout=sys.stdout):
     schema = collect_schema()
     schema = merge_schema(schema)
-    apply_schema_migration(schema)
+    apply_schema_migration(schema, verbosity=verbosity, stdout=stdout)

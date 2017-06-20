@@ -108,9 +108,9 @@ class Server(object):
             self.get_database(name)
         except exceptions.CouchError as e:
             if e.args[0]['error'] == 'not_found':
-                return self.create_database(name)
+                return (self.create_database(name), True)
             raise
-        return Database(name, server=self)
+        return (Database(name, server=self), False)
 
     def delete_database(self, name):
         return self.delete('/{}'.format(self._get_database_name(name)))

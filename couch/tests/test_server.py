@@ -35,15 +35,17 @@ class ServerTest(CouchTestCase):
     def test_get_or_create_database_existing(self):
         server = Server()
         server.create_database('acme')
-        db = server.get_or_create_database('acme')
+        db, created = server.get_or_create_database('acme')
         self.assertEqual(db.name, 'acme')
         self.assertEqual(db.server.alias, 'default')
+        self.assertFalse(created)
 
     def test_get_or_create_database_not_existing(self):
         server = Server()
-        db = server.get_or_create_database('acme')
+        db, created = server.get_or_create_database('acme')
         self.assertEqual(db.name, 'acme')
         self.assertEqual(db.server.alias, 'default')
+        self.assertTrue(created)
 
     @override_settings(COUCH_SERVERS=dict(default=dict(HOST='nowhere.example.com')))
     def test_get_or_create_database_ko(self):

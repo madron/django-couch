@@ -136,7 +136,7 @@ class ManagerGetTest(CouchTestCase):
 
 class ManagerViewTest(CouchTestCase):
     def setUp(self):
-        self.db = Server().get_or_create_database('db')
+        self.db, created = Server().get_or_create_database('db')
         Book(_id='python_cookbook', title='Python Cookbook', pages=806).save()
         Book(_id='django_guide', title='The Definitive Guide to Django', pages=536).save()
         Author(_id='alex', name='Alex Martelli').save()

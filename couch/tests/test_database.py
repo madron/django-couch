@@ -177,7 +177,7 @@ class DatabaseListDocumentsTest(CouchTestCase):
 
 class DatabaseViewTest(CouchTestCase):
     def setUp(self):
-        self.db = Server().get_or_create_database('mydb')
+        self.db, created = Server().get_or_create_database('mydb')
         Book(_id='python_cookbook', title='Python Cookbook', pages=806).save()
         Book(_id='django_guide', title='The Definitive Guide to Django', pages=536).save()
         Author(_id='alex', name='Alex Martelli').save()
@@ -329,7 +329,7 @@ class DatabaseViewTest(CouchTestCase):
 
 class DatabaseFindTest(CouchTestCase):
     def setUp(self):
-        self.db = Server().get_or_create_database('mydb')
+        self.db, created = Server().get_or_create_database('mydb')
         Book(_id='python_cookbook', title='Python Cookbook', pages=806).save()
         Book(_id='django_guide', title='The Definitive Guide to Django', pages=536).save()
         Author(_id='alex', name='Alex Martelli').save()
@@ -406,7 +406,7 @@ class DatabaseFindTest(CouchTestCase):
 
 class DatabaseIndexTest(CouchTestCase):
     def setUp(self):
-        self.db = Server().get_or_create_database('mydb')
+        self.db, created = Server().get_or_create_database('mydb')
 
     def test_normalize_index(self):
         index = self.db.normalize_index(dict(fields=['document_type']))
