@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.test import TestCase
+from django.test import SimpleTestCase
 from .. import Server
 from ..utils import migrate
 
 TEST_DATABASE_PREFIX = 't_e_s_t__'
 
 
-class CouchTestCase(TestCase):
+class CouchTestCase(SimpleTestCase):
     def _pre_setup(self):
         super(CouchTestCase, self)._pre_setup()
         # Test prefix

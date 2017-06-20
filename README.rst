@@ -5,7 +5,7 @@ Django Couch
 Requirements
 ------------
 
-`Django <https://www.djangoproject.com/>`_ 1.11 or later
+- `Django <https://www.djangoproject.com/>`_ 1.11 or later
 
 
 Installation

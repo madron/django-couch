@@ -10,9 +10,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+DATABASES = dict()
+
 COUCH_SERVERS = dict(
     default=dict(
         USERNAME='admin',
         PASSWORD='admin',
     ),
 )
+
+TEST_RUNNER = 'couch.test.runner.CouchDiscoverRunner'

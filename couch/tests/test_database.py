@@ -1,7 +1,7 @@
 import itertools
 import warnings
 from django.test import override_settings
-from django.test import TestCase
+from django.test import SimpleTestCase
 from couch.test import CouchTestCase
 from .. import Database
 from .. import documents
@@ -27,7 +27,7 @@ class Author(documents.Document):
 
 
 @override_settings(COUCH_SERVERS=dict(default=dict()))
-class DatabaseNoCouchTest(TestCase):
+class DatabaseNoCouchTest(SimpleTestCase):
     def test_init_default(self):
         db = Database('mydb')
         self.assertEqual(db.name, 'mydb')

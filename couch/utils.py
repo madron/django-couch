@@ -8,6 +8,13 @@ from . import documents
 from . import Server
 
 
+def server_setup():
+    from django.conf import settings
+    for alias in settings.COUCH_SERVERS.keys():
+        server = Server(alias=alias)
+        server.single_node_setup()
+
+
 def collect_schema():
     schema = dict()
     for app_name, app_config in apps.app_configs.items():

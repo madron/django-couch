@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 from couch import Server
 from couch.test import CouchTestCase
 from couch.utils import collect_schema
@@ -6,7 +6,7 @@ from couch.utils import merge_schema
 from couch.utils import migrate
 
 
-class UtilsTest(TestCase):
+class UtilsTest(SimpleTestCase):
     def test_collect_schema(self):
         schema = collect_schema()
         app = schema['couchtest']

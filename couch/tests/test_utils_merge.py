@@ -1,8 +1,8 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 from ..utils import merge_schema
 
 
-class UtilsTest(TestCase):
+class UtilsTest(SimpleTestCase):
     def test_merge_schema(self):
         schema = dict(
             couchtest=dict(

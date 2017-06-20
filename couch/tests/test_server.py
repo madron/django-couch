@@ -1,5 +1,5 @@
 from django.test import override_settings
-from django.test import TestCase
+from django.test import SimpleTestCase
 from .. import exceptions
 from .. import Server
 from ..test import CouchTestCase
@@ -108,7 +108,7 @@ class ServerTest(CouchTestCase):
             server.single_node_setup()
 
 
-class DefaultServerTest(TestCase):
+class DefaultServerTest(SimpleTestCase):
     @override_settings(COUCH_SERVERS=dict(default=dict()))
     def test_default(self):
         server = Server()
@@ -143,7 +143,7 @@ class DefaultServerTest(TestCase):
         self.assertEqual(server.database_prefix, 'demo_')
 
 
-class OtherServerTest(TestCase):
+class OtherServerTest(SimpleTestCase):
     @override_settings(COUCH_SERVERS=dict(another=dict()))
     def test_no_default_server(self):
         with self.assertRaises(KeyError):

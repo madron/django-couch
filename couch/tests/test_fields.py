@@ -1,13 +1,13 @@
 import pytz
 from datetime import datetime
 from django.test import override_settings
-from django.test import TestCase
+from django.test import SimpleTestCase
 from django.utils import timezone
 from .. import exceptions
 from .. import fields
 
 
-class TextFieldTest(TestCase):
+class TextFieldTest(SimpleTestCase):
     def test_to_json(self):
         value = fields.TextField().to_json('Text')
         self.assertEqual(value, 'Text')
@@ -17,7 +17,7 @@ class TextFieldTest(TestCase):
         self.assertEqual(value, 'Text')
 
 
-class DateTimeFieldTest(TestCase):
+class DateTimeFieldTest(SimpleTestCase):
     def test_to_json_naive(self):
         with self.assertRaises(exceptions.CouchError) as context:
             fields.DateTimeField().to_json(datetime(2013, 5, 1, 12, 0))
@@ -92,7 +92,7 @@ class DateTimeFieldTest(TestCase):
         self.assertEqual(value, pytz.timezone('Europe/Athens').localize(datetime(2013, 5, 1, 9, 0)))
 
 
-class JsonFieldTest(TestCase):
+class JsonFieldTest(SimpleTestCase):
     def test_to_json_dict(self):
         data = dict(
             name='Alex Martelli',
