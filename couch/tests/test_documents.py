@@ -182,6 +182,44 @@ class DocumentNoDbTest(CouchTestCase):
         document._rev = '123-987'
         self.assertEqual(document._rev, '123-987')
 
+    def test_str_1(self):
+        document = Book()
+        self.assertEqual(str(document), 'Book')
+
+    def test_str_2(self):
+        document = Book(_id='python_cookbook')
+        self.assertEqual(str(document), 'Book python_cookbook')
+
+    def test_repr_1(self):
+        class Book(documents.Document):
+            title = documents.TextField()
+            pages = documents.IntegerField()
+
+        document = Book()
+        self.assertEqual(repr(document), '{}')
+
+    def test_repr_2(self):
+        document = Book()
+        self.assertEqual(repr(document), "{'document_type': 'book'}")
+
+    def test_repr_3(self):
+        text = repr(Book(_id='python_cookbook'))
+        self.assertIn("'document_type': 'book'", text)
+        self.assertIn("'_id': 'python_cookbook'", text)
+
+    def test_repr_4(self):
+        text = repr(Book(_id='python_cookbook', title='Python cookbook', pages=806))
+        self.assertIn("'document_type': 'book'", text)
+        self.assertIn("'_id': 'python_cookbook'", text)
+        self.assertIn("'title': 'Python cookbook'", text)
+        self.assertIn("'pages': 806", text)
+
+    def test_bool_false(self):
+        self.assertFalse(Book())
+
+    def test_bool_true(self):
+        self.assertTrue(Book(_id='python_cookbook'))
+
 
 @override_settings(TIME_ZONE='UTC')
 class DocumentTest(CouchTestCase):
