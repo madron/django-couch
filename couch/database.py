@@ -1,6 +1,7 @@
 import json
 import warnings
 from copy import deepcopy
+from . import exceptions
 from .server import Server
 
 
@@ -110,6 +111,16 @@ class Database(object):
                 break
             # Update skip parameter
             kwargs['skip'] += batch_size
+
+    def find_one(self, document_class=None, warning=True, **kwargs):
+        kwargs['skip'] = 0
+        kwargs['limit'] = 2
+        result = list(self.find(batch_size=2, document_class=document_class, warning=warning, **kwargs))
+        if len(result) == 0:
+            raise exceptions.ObjectDoesNotExist()
+        if len(result) > 1:
+            raise exceptions.MultipleObjectsReturned()
+        return result[0]
 
     def normalize_index(self, index):
         if 'fields' in index:

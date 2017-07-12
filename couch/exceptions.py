@@ -4,3 +4,13 @@ class CouchError(Exception):
 
 class RevisionMismatch(CouchError):
     pass
+
+
+class ObjectDoesNotExist(CouchError):
+    pass
+
+
+class MultipleObjectsReturned(CouchError):
+    pass
+
+

@@ -66,6 +66,11 @@ class Manager(object):
         kwargs['document_class'] = self.document_class
         return db.find(*args, **kwargs)
 
+    def find_one(self, *args, **kwargs):
+        db = self.document_class._meta.get_database()
+        kwargs['document_class'] = self.document_class
+        return db.find_one(*args, **kwargs)
+
 
 class DocumentBase(type):
     def __new__(cls, name, bases, attrs):
@@ -102,7 +107,10 @@ class DocumentBase(type):
         # Manager
         manager = Manager(new_class)
         new_class.add_to_class('objects', manager)
-       # Add all attributes to the class.
+        # Exceptions
+        new_class.add_to_class('DoesNotExist', exceptions.ObjectDoesNotExist)
+        new_class.add_to_class('MultipleObjectsReturned', exceptions.MultipleObjectsReturned)
+        # Add all attributes to the class.
         for obj_name, obj in attrs.items():
             new_class.add_to_class(obj_name, obj)
         return new_class

@@ -440,7 +440,7 @@ class DatabaseFindOneTest(CouchTestCase):
             self.assertEqual(len(warning_list), 1)
             message = warning_list[0].message.args[0]
             self.assertIn('no matching index found, create an index to optimize query time', message)
-            self.assertIn("'selector': {'document_type': 'book'}", message)
+            self.assertIn("'selector': {'name': 'Alex Martelli'}", message)
 
     def test_index_warning_false(self):
         with warnings.catch_warnings(record=True) as warning_list:
@@ -449,14 +449,12 @@ class DatabaseFindOneTest(CouchTestCase):
             self.assertEqual(len(warning_list), 0)
 
     def test_find_one_got_not_found(self):
-        with self.assertRaises(exceptions.CouchError) as context:
-            self.db.find(selector=dict(name='not found'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Not found.')
+        with self.assertRaises(exceptions.ObjectDoesNotExist):
+            self.db.find_one(selector=dict(name='not found'), warning=False)
 
     def test_find_one_got_multiple_objects(self):
-        with self.assertRaises(exceptions.CouchError) as context:
-            self.db.find(selector=dict(document_type='author'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Multiple objects returned.')
+        with self.assertRaises(exceptions.MultipleObjectsReturned):
+            self.db.find_one(selector=dict(document_type='author'), warning=False)
 
 
 class DatabaseIndexTest(CouchTestCase):

@@ -195,20 +195,6 @@ class ManagerFindTest(CouchTestCase):
             list(itertools.islice(result, 5))
         self.assertEqual(context.exception.args[0], "Type mismatch error: document_type 'book' expected, got 'author'")
 
-    def test_find_one_got_0(self):
-        with self.assertRaises(exceptions.CouchError) as context:
-            Author.objects.find_one(selector=dict(name='not found'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Not found.')
-
-    def test_find_one_got_1(self):
-        document = Author.objects.find(selector=dict(name='Alex Martelli'), warning=False)
-        self.assertEqual(document._id, 'alex')
-
-    def test_find_one_got_2(self):
-        with self.assertRaises(exceptions.CouchError) as context:
-            Author.objects.find(selector=dict(document_type='author'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Multiple objects returned.')
-
 
 class ManagerFindOneTest(CouchTestCase):
     def setUp(self):
@@ -227,17 +213,14 @@ class ManagerFindOneTest(CouchTestCase):
         self.assertNotEqual(result._rev, None)
 
     def test_document_type_mismatch(self):
-        result = Book.objects.find_one(selector=dict(name='Alex Martelli'), warning=False)
         with self.assertRaises(exceptions.CouchError) as context:
-            list(itertools.islice(result, 5))
+            Book.objects.find_one(selector=dict(name='Alex Martelli'), warning=False)
         self.assertEqual(context.exception.args[0], "Type mismatch error: document_type 'book' expected, got 'author'")
 
     def test_find_one_not_found(self):
-        with self.assertRaises(exceptions.CouchError) as context:
+        with self.assertRaises(Author.DoesNotExist):
             Author.objects.find_one(selector=dict(name='not found'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Not found.')
 
     def test_find_one_multiple_objects(self):
-        with self.assertRaises(exceptions.CouchError) as context:
-            Author.objects.find(selector=dict(document_type='author'), warning=False)
-        self.assertEqual(context.exception.args[0], 'Multiple objects returned.')
+        with self.assertRaises(Author.MultipleObjectsReturned):
+            Author.objects.find_one(selector=dict(document_type='author'), warning=False)
