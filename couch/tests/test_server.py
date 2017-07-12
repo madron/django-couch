@@ -20,15 +20,21 @@ class ServerTest(CouchTestCase):
         self.assertEqual(db.name, 'acme')
         self.assertEqual(db.server.alias, 'default')
 
-    def test_get_database_not_found(self):
+    def test_get_database_not_found_check(self):
         server = Server()
         with self.assertRaises(exceptions.CouchError):
-            server.get_database('acme')
+            server.get_database('acme', check=True)
+
+    def test_get_database_not_found_no_check(self):
+        server = Server()
+        db = server.get_database('acme')
+        self.assertEqual(db.name, 'acme')
+        self.assertEqual(db.server.alias, 'default')
 
     def test_get_database_ok(self):
         server = Server()
         server.create_database('acme')
-        db = server.get_database('acme')
+        db = server.get_database('acme', check=True)
         self.assertEqual(db.name, 'acme')
         self.assertEqual(db.server.alias, 'default')
 

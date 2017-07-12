@@ -97,15 +97,16 @@ class Server(object):
         self.put('/{}'.format(self._get_database_name(name)))
         return Database(name, server=self)
 
-    def get_database(self, name):
+    def get_database(self, name, check=False):
         from .database import Database
-        self.get('/{}'.format(self._get_database_name(name)))
+        if check:
+            self.get('/{}'.format(self._get_database_name(name)))
         return Database(name, server=self)
 
     def get_or_create_database(self, name):
         from .database import Database
         try:
-            self.get_database(name)
+            self.get_database(name, check=True)
         except exceptions.CouchError as e:
             if e.args[0]['error'] == 'not_found':
                 return (self.create_database(name), True)
