@@ -404,6 +404,61 @@ class DatabaseFindTest(CouchTestCase):
             self.assertEqual(len(warning_list), 0)
 
 
+class DatabaseFindOneTest(CouchTestCase):
+    def setUp(self):
+        self.db, created = Server().get_or_create_database('mydb')
+        Book(_id='python_cookbook', title='Python Cookbook', pages=806).save()
+        Book(_id='django_guide', title='The Definitive Guide to Django', pages=536).save()
+        Author(_id='alex', name='Alex Martelli').save()
+        Author(_id='adrian', name='Adrian Holovaty').save()
+
+    def test_ok(self):
+        result = self.db.find_one(selector=dict(pages={'$gt': 700}), warning=False)
+        self.assertEqual(result['_id'], 'python_cookbook')
+        self.assertEqual(result['document_type'], 'book')
+        self.assertEqual(result['title'], 'Python Cookbook')
+        self.assertEqual(result['pages'], 806)
+        self.assertNotEqual(result['_rev'], None)
+
+    def test_document_class(self):
+        result = self.db.find_one(selector=dict(name='Alex Martelli'), document_class=Author, warning=False)
+        self.assertIsInstance(result, Author)
+        self.assertEqual(result.document_type, 'author')
+        self.assertEqual(result._id, 'alex')
+        self.assertEqual(result.name, 'Alex Martelli')
+        self.assertNotEqual(result._rev, None)
+
+    def test_document_class_type_mismatch(self):
+        with self.assertRaises(exceptions.CouchError) as context:
+            self.db.find_one(selector=dict(name='Alex Martelli'), document_class=Book, warning=False)
+        self.assertEqual(context.exception.args[0], "Type mismatch error: document_type 'book' expected, got 'author'")
+
+    def test_index_warning_true(self):
+        with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter("always")
+            self.db.find_one(selector=dict(name='Alex Martelli'), warning=True)
+            self.assertEqual(len(warning_list), 1)
+            message = warning_list[0].message.args[0]
+            self.assertIn('no matching index found, create an index to optimize query time', message)
+            self.assertIn("'selector': {'document_type': 'book'}", message)
+
+    def test_index_warning_false(self):
+        with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter("always")
+            self.db.find_one(selector=dict(name='Alex Martelli'), warning=False)
+            self.assertEqual(len(warning_list), 0)
+
+    def test_find_one_got_not_found(self):
+        with self.assertRaises(exceptions.CouchError) as context:
+            self.db.find(selector=dict(name='not found'), warning=False)
+        self.assertEqual(context.exception.args[0], 'Not found.')
+
+    def test_find_one_got_multiple_objects(self):
+        with self.assertRaises(exceptions.CouchError) as context:
+            self.db.find(selector=dict(document_type='author'), warning=False)
+        self.assertEqual(context.exception.args[0], 'Multiple objects returned.')
+
+
 class DatabaseIndexTest(CouchTestCase):
     def setUp(self):
         self.db, created = Server().get_or_create_database('mydb')
