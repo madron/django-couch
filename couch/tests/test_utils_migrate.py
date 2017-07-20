@@ -77,6 +77,29 @@ class MigrateDesignTest(CouchTestCase):
         self.assertEqual(data['_rev'], previous_rev)
         self.assertEqual(data['views'], {'view': {'map': 'function (doc) {\n  emit(doc._id, 1);\n}'}})
 
+    def test_update_design(self):
+        server = Server(alias='default')
+        server.delete_database_if_exists('db')
+        # Schema
+        view = dict(map='function (doc) {\n  emit(doc._id, 1);\n}')
+        self.schema['default']['db']['designs']['ddoc']['views']['view'] = view
+        apply_schema_migration(self.schema)
+        db = server.get_database('db')
+        data = db.get('_design/ddoc')
+        self.assertEqual(data['_id'], '_design/ddoc')
+        self.assertNotEqual(data['_rev'], None)
+        self.assertEqual(data['views'], {'view': {'map': 'function (doc) {\n  emit(doc._id, 1);\n}'}})
+        previous_rev = data['_rev']
+        # Update design
+        view = dict(map='function (doc) {\n  emit(doc._id, 2);\n}')
+        self.schema['default']['db']['designs']['ddoc']['views']['view'] = view
+        apply_schema_migration(self.schema)
+        db = server.get_database('db')
+        data = db.get('_design/ddoc')
+        self.assertEqual(data['_id'], '_design/ddoc')
+        self.assertNotEqual(data['_rev'], previous_rev)
+        self.assertEqual(data['views'], {'view': {'map': 'function (doc) {\n  emit(doc._id, 2);\n}'}})
+
     def test_remove_design(self):
         server = Server(alias='default')
         server.delete_database_if_exists('db')

@@ -190,5 +190,6 @@ class DesignDocument(Document):
     language = TextField(default='javascript')
     views = JsonField()
 
-    def save(self):
-        return super(DesignDocument, self).save(only_if_changed=True)
+    def save(self, **kwargs):
+        kwargs['only_if_changed'] = True
+        return super(DesignDocument, self).save(**kwargs)
