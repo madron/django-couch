@@ -66,6 +66,11 @@ class Manager(object):
         kwargs['document_class'] = self.document_class
         return db.find(*args, **kwargs)
 
+    def find_one(self, *args, **kwargs):
+        db = self.document_class._meta.get_database()
+        kwargs['document_class'] = self.document_class
+        return db.find_one(*args, **kwargs)
+
 
 class DocumentBase(type):
     def __new__(cls, name, bases, attrs):
@@ -102,7 +107,10 @@ class DocumentBase(type):
         # Manager
         manager = Manager(new_class)
         new_class.add_to_class('objects', manager)
-       # Add all attributes to the class.
+        # Exceptions
+        new_class.add_to_class('DoesNotExist', exceptions.ObjectDoesNotExist)
+        new_class.add_to_class('MultipleObjectsReturned', exceptions.MultipleObjectsReturned)
+        # Add all attributes to the class.
         for obj_name, obj in attrs.items():
             new_class.add_to_class(obj_name, obj)
         return new_class
@@ -128,8 +136,18 @@ class Document(six.with_metaclass(DocumentBase)):
             else:
                 self.document_type = self._meta.document_type
 
-    def save(self, revision_mismatch_override=False, only_if_changed=False):
-        db = self._meta.get_database()
+    def __str__(self):
+        if self._id:
+            return '{} {}'.format(self.__class__.__name__, self._id)
+        return self.__class__.__name__
+
+    def __repr__(self):
+        return str(self._get_data())
+
+    def __bool__(self):
+        return bool(self._id)
+
+    def _get_data(self):
         data = dict()
         for key, value in self.__dict__.items():
             if key in self._fields:
@@ -144,6 +162,11 @@ class Document(six.with_metaclass(DocumentBase)):
         if self._meta.document_type:
             self.document_type = self._meta.document_type
             data['document_type'] = self.document_type
+        return data
+
+    def save(self, revision_mismatch_override=False, only_if_changed=False):
+        db = self._meta.get_database()
+        data = self._get_data()
         save = True
         if only_if_changed and self._id:
             try:
