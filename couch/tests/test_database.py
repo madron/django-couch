@@ -327,6 +327,46 @@ class DatabaseViewTest(CouchTestCase):
         self.assertEqual(context.exception.args[0], "Type mismatch error: document_type 'book' expected, got 'author'")
 
 
+class DatabaseViewOneTest(CouchTestCase):
+    def setUp(self):
+        self.db, created = Server().get_or_create_database('mydb')
+        Book(_id='python_cookbook', title='Python Cookbook', pages=806).save()
+        Book(_id='django_guide', title='The Definitive Guide to Django', pages=536).save()
+        Author(_id='alex', name='Alex Martelli').save()
+        Author(_id='adrian', name='Adrian Holovaty').save()
+
+    def test_ok(self):
+        self.db.put('_design/viewdocid', json=dict(views=dict(view=dict(map='function(doc) { if(doc.title) { emit(doc.title); }}'))))
+        result = self.db.view_one('viewdocid', 'Python Cookbook')
+        self.assertEqual(result['key'], 'Python Cookbook')
+        self.assertEqual(result['id'], 'python_cookbook')
+        self.assertEqual(result['value'], None)
+
+    def test_document_class(self):
+        self.db.put('_design/viewdocid', json=dict(views=dict(view=dict(map='function(doc) { if(doc.title) { emit(doc.title, doc); }}'))))
+        result = self.db.view_one('viewdocid', 'Python Cookbook', document_class=Book)
+        self.assertEqual(result.document_type, 'book')
+        self.assertEqual(result._id, 'python_cookbook')
+        self.assertEqual(result.title, 'Python Cookbook')
+        self.assertNotEqual(result._rev, None)
+
+    def test_document_class_type_mismatch(self):
+        self.db.put('_design/viewdocid', json=dict(views=dict(view=dict(map='function(doc) { if(doc.title) { emit(doc.title, doc); }}'))))
+        with self.assertRaises(exceptions.CouchError) as context:
+            self.db.view_one('viewdocid', 'Python Cookbook', document_class=Author)
+        self.assertEqual(context.exception.args[0], "Type mismatch error: document_type 'author' expected, got 'book'")
+
+    def test_not_found(self):
+        self.db.put('_design/viewdocid', json=dict(views=dict(view=dict(map='function(doc) { if(doc.title) { emit(doc.title, doc); }}'))))
+        with self.assertRaises(exceptions.ObjectDoesNotExist):
+            self.db.view_one('viewdocid', 'wrong')
+
+    def test_multiple_objects(self):
+        self.db.put('_design/viewdocid', json=dict(views=dict(view=dict(map='function(doc) { emit(doc.document_type, doc); }'))))
+        with self.assertRaises(exceptions.MultipleObjectsReturned):
+            self.db.view_one('viewdocid', 'book')
+
+
 class DatabaseFindTest(CouchTestCase):
     def setUp(self):
         self.db, created = Server().get_or_create_database('mydb')

@@ -79,6 +79,17 @@ class Database(object):
             options.update(startkey=rows[-1]['key'],
                            startkey_docid=rows[-1]['id'], skip=0)
 
+    def view_one(self, document_name, key, view_name='view', document_class=None, **kwargs):
+        kwargs['limit'] = 2
+        kwargs['startkey'] = key
+        kwargs['endkey'] = key
+        result = list(self.view(document_name, view_name=view_name, document_class=document_class, **kwargs))
+        if len(result) == 0:
+            raise exceptions.ObjectDoesNotExist()
+        if len(result) > 1:
+            raise exceptions.MultipleObjectsReturned()
+        return result[0]
+
     def find(self, batch_size=100, document_class=None, warning=True, **kwargs):
         kwargs['skip'] = kwargs.get('skip', 0)
         # Check sane batch size.
