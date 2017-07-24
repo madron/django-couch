@@ -114,7 +114,7 @@ def apply_schema_migration(schema, verbosity=0, stdout=sys.stdout):
                     _id = '_design/{}'.format(design_name)
                     doc = documents.DesignDocument(_id=_id, **design_schema)
                     doc._meta.database = db
-                    result = doc.save()
+                    result = doc.save(revision_mismatch_override=True)
                     if result == 'saved' and verbosity > 0:
                         stdout.write("Server '{}' - Database '{}' - Design document '{}' added.".format(alias, db_name, design_name))
                 # Remove no more needed indexes
