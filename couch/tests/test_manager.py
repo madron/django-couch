@@ -64,6 +64,14 @@ class ManagerGetTest(CouchTestCase):
         self.assertEqual(document.price, Decimal('49.99'))
         self.assertEqual(document.published, True)
 
+    def test_get_not_found_1(self):
+        with self.assertRaises(exceptions.ObjectDoesNotExist):
+            Book.objects.get('python_cookbook')
+
+    def test_get_not_found_2(self):
+        with self.assertRaises(Book.DoesNotExist):
+            Book.objects.get('python_cookbook')
+
     def test_get_field_null(self):
         # Write data
         data = dict(

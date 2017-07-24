@@ -38,7 +38,12 @@ class Manager(object):
 
     def get(self, document_id, raw=False):
         db = self.document_class._meta.get_database()
-        data = db.get(document_id)
+        try:
+            data = db.get(document_id)
+        except exceptions.CouchError as e:
+            if e.args[0]['error'] == 'not_found':
+                raise exceptions.ObjectDoesNotExist()
+            raise  # pragma: no cover
         document = self.document_class()
         if raw:
             setattr(document, '_raw', deepcopy(data))
@@ -175,9 +180,8 @@ class Document(six.with_metaclass(DocumentBase)):
                     prev_data.pop('_rev', None)
                 if data == prev_data:
                     save = False
-            except exceptions.CouchError as exception:
-                if not exception.args[0]['error'] == 'not_found':
-                    raise  # pragma: no cover
+            except exceptions.ObjectDoesNotExist:
+                pass
         if save:
             try:
                 result = db.post(
