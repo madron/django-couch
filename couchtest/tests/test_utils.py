@@ -122,7 +122,7 @@ class SchemaTest(CouchTestCase):
         self.assertEqual(index['ddoc'], 'couchtest_testindexdoc')
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
         # ctanotherdb
         db = server.get_database('ctanotherdb')
         data = db.get('_design/couchtest_testdesigndoc')

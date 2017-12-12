@@ -148,7 +148,7 @@ class MigrateIndexTest(CouchTestCase):
         self.assertEqual(index['ddoc'], '_design/ddoc')
         self.assertEqual(index['name'], 'index')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_create_index_invalid(self):
         server = Server(alias='default')
@@ -173,7 +173,7 @@ class MigrateIndexTest(CouchTestCase):
         self.assertEqual(index['ddoc'], '_design/ddoc')
         self.assertEqual(index['name'], 'index')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
         # Add same schema again
         apply_schema_migration(self.schema)
         db = server.get_database('db')
@@ -182,7 +182,7 @@ class MigrateIndexTest(CouchTestCase):
         self.assertEqual(index['ddoc'], '_design/ddoc')
         self.assertEqual(index['name'], 'index')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_remove_index_1(self):
         server = Server(alias='default')

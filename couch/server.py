@@ -4,7 +4,7 @@ from functools import wraps
 from django.conf import settings
 from . import exceptions
 
-STATUS_CODES_2XX = (200, 201, 202)
+STATUS_CODES_2XX = (200, 201)
 
 
 class Server(object):

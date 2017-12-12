@@ -493,6 +493,8 @@ class DatabaseFindOneTest(CouchTestCase):
             self.db.find_one(selector=dict(name='not found'), warning=False)
 
     def test_find_one_got_multiple_objects(self):
+        # from time import sleep
+        # sleep(0.1)
         with self.assertRaises(exceptions.MultipleObjectsReturned):
             self.db.find_one(selector=dict(document_type='author'), warning=False)
 
@@ -522,7 +524,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['type'], 'json')
         self.assertEqual(index['ddoc'], 'ddoc1')
         self.assertEqual(index['name'], 'index1')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_list_indexes_filter_ddoc(self):
         # Create index
@@ -535,7 +537,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['type'], 'json')
         self.assertEqual(index['ddoc'], 'ddoc1')
         self.assertEqual(index['name'], 'index1')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_list_indexes_filter_name(self):
         # Create index
@@ -561,7 +563,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['type'], 'json')
         self.assertEqual(index['ddoc'], 'ddoc1')
         self.assertEqual(index['name'], 'index1')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_list_indexes_filter_not_found(self):
         # Create index
@@ -576,7 +578,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], 'ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_get_index_not_found(self):
         self.db.post('_index', json=dict(ddoc='ddoc1', name='index1', index=dict(fields=['document_type'])))
@@ -594,7 +596,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], '_design/ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_create_index_changed(self):
         data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=['document_type']))
@@ -607,7 +609,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], '_design/ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
         # Change index
         data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=['_id']))
         self.assertEqual(data['result'], 'created')
@@ -619,10 +621,10 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], '_design/ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(_id='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(_id='asc')], partial_filter_selector=dict()))
 
     def test_create_index_unchanged(self):
-        data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=['document_type']))
+        data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=['document_type'], partial_filter_selector=dict()))
         self.assertEqual(data['result'], 'created')
         self.assertEqual(data['ddoc'], 'ddoc1')
         self.assertEqual(data['name'], 'index1')
@@ -632,9 +634,9 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], '_design/ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
         # Same index
-        data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=dict(document_type='asc')))
+        data = self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=dict(document_type='asc'), partial_filter_selector=dict()))
         self.assertEqual(data['result'], 'unchanged')
         self.assertEqual(data['ddoc'], 'ddoc1')
         self.assertEqual(data['name'], 'index1')
@@ -644,7 +646,7 @@ class DatabaseIndexTest(CouchTestCase):
         self.assertEqual(index['name'], 'index1')
         self.assertEqual(index['ddoc'], '_design/ddoc1')
         self.assertEqual(index['type'], 'json')
-        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')]))
+        self.assertEqual(index['def'], dict(fields=[dict(document_type='asc')], partial_filter_selector=dict()))
 
     def test_delete_index(self):
         self.db.create_index(ddoc='ddoc1', name='index1', index=dict(fields=['document_type']))

@@ -3,7 +3,7 @@ version: '3'
 
 services:
   couch:
-    image: klaemo/couchdb:2.0.0
+    image: quay.io/mtek/couchdb:2.1.1
     network_mode: default
     environment:
       - COUCHDB_HTTP_BIND_ADDRESS=0.0.0.0
